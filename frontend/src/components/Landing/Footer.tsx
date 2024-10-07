@@ -97,6 +97,8 @@ export default function Footer() {
             <div className="flex space-x-6">
               {socials.map((item) => (
                 <a
+                  data-umami-event="click_socials"
+                  data-umami-event-name={item.name}
                   key={item.name}
                   href={item.href}
                   className="text-gray-500 hover:text-gray-400"
@@ -105,18 +107,6 @@ export default function Footer() {
                   <item.icon className="h-6 w-6" aria-hidden="true" />
                 </a>
               ))}
-            </div>
-            <div className="py-4">
-              <a
-                href="https://theresanaiforthat.com/ai/dataline/?ref=featured&v=1901847"
-                target="_blank"
-                rel="nofollow"
-              >
-                <img
-                  width="300"
-                  src="https://media.theresanaiforthat.com/featured-on-taaft.png?width=600"
-                />
-              </a>
             </div>
           </div>
           <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
@@ -150,6 +140,8 @@ export default function Footer() {
                     {navigation.support.map((item) => (
                       <li key={item.name}>
                         <a
+                          data-umami-event="click_socials"
+                          data-umami-event-name={item.name}
                           href={item.href}
                           className="text-sm leading-6 text-gray-300 hover:text-white"
                         >

@@ -8,6 +8,7 @@ import { Transition } from "@headlessui/react";
 import MessageTemplate from "./MessageTemplate";
 import {
   getMessagesQuery,
+  useGenerateConversationTitle,
   useGetConnections,
   useGetConversations,
   useSendMessageStreaming,
@@ -38,7 +39,18 @@ export const Conversation = () => {
   const { data: conversationsData } = useGetConversations();
 
   const [streamedResults, setStreamedResults] = useState<IResultType[]>([]);
-
+  const {
+    data: messages,
+    isSuccess: isSuccessGetMessages,
+    isPending: isPendingGetMessages,
+    error: getMessagesError,
+  } = useQuery(
+    getMessagesQuery({ conversationId: params.conversationId ?? "" })
+  );
+  const currConversation = conversationsData?.find(
+    (conv) => conv.id === params.conversationId
+  );
+  const { mutate: generateConversationTitle } = useGenerateConversationTitle();
   const {
     mutate: sendMessageMutation,
     isPending: isStreamingResults,
@@ -51,24 +63,22 @@ export const Conversation = () => {
         // empty array and the mutation's onSuccess properly populates the new messages + results
         { ...result, result_id: generateUUID() },
       ]),
-    onSettled: () => setStreamedResults([]),
+    onSettled: (_, error) => {
+      setStreamedResults([]);
+      if (
+        !error &&
+        messages &&
+        messages.length < 2 &&
+        currConversation?.name === "Untitled chat"
+      ) {
+        // Generate a title for the conversation if it's untitled
+        generateConversationTitle({ id: params.conversationId ?? "" });
+      }
+    },
   });
-
-  const {
-    data: messages,
-    isSuccess: isSuccessGetMessages,
-    isPending: isPendingGetMessages,
-    error: getMessagesError,
-  } = useQuery(
-    getMessagesQuery({ conversationId: params.conversationId ?? "" })
-  );
 
   const messageListRef = useRef<HTMLDivElement | null>(null);
   const expandingInputRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const currConversation = conversationsData?.find(
-    (conv) => conv.id === params.conversationId
-  );
 
   const currConnection = connectionsData?.connections?.find(
     (conn) => conn.id === currConversation?.connection_id

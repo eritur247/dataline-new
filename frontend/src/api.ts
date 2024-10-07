@@ -173,6 +173,17 @@ const createConversation = async (connectionId: string, name: string) => {
   return response.data;
 };
 
+export type RefreshConnectionSchemaResult = ApiResponse<IConnection>;
+const refreshConnectionSchema = async (
+  connectionId: string
+): Promise<RefreshConnectionSchemaResult> => {
+  const response = await backendApi<RefreshConnectionSchemaResult>({
+    url: `/connection/${connectionId}/refresh`,
+    method: "post",
+  });
+  return response.data;
+};
+
 export type ConversationUpdateResult = ApiResponse<void>;
 const updateConversation = async (
   conversationId: string,
@@ -184,6 +195,19 @@ const updateConversation = async (
     data: {
       name,
     },
+  });
+  return response.data;
+};
+
+export type ConversationTitleGenerationResult = ApiResponse<{
+  new_title: string;
+}>;
+const generateConversationTitle = async (
+  conversationId: string
+): Promise<ConversationTitleGenerationResult> => {
+  const response = await backendApi<ConversationTitleGenerationResult>({
+    url: `/conversation/${conversationId}/generate-title`,
+    method: "post",
   });
   return response.data;
 };
@@ -269,10 +293,7 @@ const streamingQuery = async ({
     "Content-Type": "application/json",
   };
 
-  let baseURL = apiURL;
-  if (!apiURL.endsWith("/")) {
-    baseURL = baseURL + "/";
-  }
+  const baseURL = apiURL.endsWith("/") ? apiURL : apiURL + "/";
 
   const url = `${baseURL}conversation/${conversationId}/query?execute=${execute}&query=${encodeURIComponent(query)}`;
 
@@ -342,6 +363,7 @@ const updateUserInfo = async (options: {
   langsmith_api_key?: string;
   openai_base_url?: string;
   sentry_enabled?: boolean;
+  analytics_enabled?: boolean;
 }) => {
   const {
     name,
@@ -349,12 +371,14 @@ const updateUserInfo = async (options: {
     langsmith_api_key,
     openai_base_url,
     sentry_enabled,
+    analytics_enabled,
   } = options;
   // send only the filled in fields
   const data: Partial<IUserInfo> = {
     ...(name && { name }),
     ...(openai_api_key && { openai_api_key }),
     ...(sentry_enabled != null && { sentry_enabled }),
+    ...(analytics_enabled != null && { analytics_enabled }),
   };
   if (langsmith_api_key !== undefined) {
     // When deleting the langsmith API key
@@ -442,8 +466,10 @@ export const api = {
   createFileConnection,
   updateConnection,
   deleteConnection,
+  refreshConnectionSchema,
   listConnections,
   listConversations,
+  generateConversationTitle,
   login,
   logout,
   createConversation,

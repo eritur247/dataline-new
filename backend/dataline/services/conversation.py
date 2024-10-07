@@ -4,7 +4,9 @@ from uuid import UUID
 
 from fastapi import Depends
 from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage
+from openai._exceptions import APIError
 
+from dataline.errors import UserFacingError
 from dataline.models.conversation.schema import (
     ConversationOut,
     ConversationWithMessagesWithResultsOut,
@@ -36,6 +38,9 @@ from dataline.repositories.message import MessageRepository
 from dataline.repositories.result import ResultRepository
 from dataline.services.connection import ConnectionService
 from dataline.services.llm_flow.graph import QueryGraphService
+from dataline.services.llm_flow.llm_calls.conversation_title_generator import (
+    ConversationTitleGenerator,
+)
 from dataline.services.settings import SettingsService
 from dataline.utils.utils import stream_event_str
 
@@ -62,6 +67,28 @@ class ConversationService:
         self.result_repo = result_repo
         self.connection_service = connection_service
         self.settings_service = settings_service
+
+    async def generate_title(self, session: AsyncSession, conversation_id: UUID) -> str:
+        conversation = await self.get_conversation_with_messages(session, conversation_id)
+        if not conversation.messages:
+            return "Untitled chat"
+
+        user_details = await self.settings_service.get_model_details(session)
+        api_key = user_details.openai_api_key.get_secret_value()
+
+        first_message_content = conversation.messages[0].message.content
+        try:
+            title_generator = ConversationTitleGenerator(
+                first_message=first_message_content, api_key=api_key, base_url=user_details.openai_base_url
+            )
+            title = title_generator.call().choices[0].message.content
+            if not title:
+                return "Untitled chat"
+
+            updated_conversation = await self.update_conversation_name(session, conversation_id, title)
+            return updated_conversation.name
+        except APIError as e:
+            raise UserFacingError(e)
 
     async def create_conversation(
         self,
@@ -108,6 +135,7 @@ class ConversationService:
         query: str,
         secure_data: bool = True,
     ) -> AsyncGenerator[str, None]:
+
         # Get conversation, connection, user settings
         conversation = await self.get_conversation(session, conversation_id=conversation_id)
         connection = await self.connection_service.get_connection(session, connection_id=conversation.connection_id)

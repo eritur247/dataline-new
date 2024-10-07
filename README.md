@@ -1,6 +1,4 @@
-<p align="center">
-  <a href="https://dataline.app"><img src="https://github.com/RamiAwar/dataline/assets/8523191/97e3a26c-e064-4e4e-b804-4e739986dbe9" alt="DataLine logo"></a>
-</p>
+
 <p align="center">
     <strong>💬 Chat with your data using natural language 📊</strong>
 </p>
@@ -10,6 +8,9 @@
 <div align="center">
 <img src="https://img.shields.io/github/downloads/ramiawar/dataline/total?style=flat&color=%2322c55e">
 <img src="https://img.shields.io/docker/pulls/ramiawar/dataline?color=%2338bdf8">
+<img src="https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat">
+
+
 </div>
 
 <div align="center">
@@ -19,8 +20,8 @@
 </div>
 
 ## 🍿 Watch a quick demo
-<a href="https://youtu.be/NN99OTVy7uA"><img src="https://github.com/user-attachments/assets/34dfba7c-7ab5-4a35-8fe1-e40b298ef1ae" height="300" alt="DataLine logo"></a>
 
+<a href="https://youtu.be/NN99OTVy7uA"><img src="https://github.com/user-attachments/assets/34dfba7c-7ab5-4a35-8fe1-e40b298ef1ae" height="300" alt="DataLine logo"></a>
 
 ---
 
@@ -35,7 +36,12 @@
   - [Mac](#mac)
   - [Linux](#linux)
   - [Docker](#docker)
-  - [Running manually](#running-manually)
+- [Upgrading](#upgrading)
+  - [Windows](#upgrade-windows)
+  - [Mac](#upgrade-mac)
+  - [Linux](#upgrade-linux)
+  - [Docker](#upgrade-docker)
+- [Running manually](#running-manually)
 - [Authentication](#authentication)
   - [With Docker](#with-docker)
 - [Startup Quest](#startup-quest)
@@ -77,6 +83,9 @@ But you can still influence the direction we go in. We're building this for you,
 - [x] Querying data files like CSV, [Excel](#excel-support), SQLite, sas7bdat (more connection types)
 - [x] Charting via natural language
 - [x] Modifying chart queries and re-rendering/refreshing charts
+- [ ] Dashboards and triggers
+- [ ] Knowledge base and 'trainable' examples (flavor of RAG)
+- [ ] More advanced charting options (bubble, stacks, etc.)
 
 With a lot more coming soon. You can still influence what we build, so if you're a user and you're down for it, we'd love to interview you! Book some time with one of us here:
 
@@ -108,6 +117,8 @@ brew install dataline
 dataline
 ```
 
+If you don't like Homebrew, a binary can be found in the latest release!
+
 DataLine should then be running on port 7377 accessible from your browser: http://localhost:7377
 
 #### Linux
@@ -136,7 +147,41 @@ docker run -p 7377:7377 -v dataline:/home/.dataline --name dataline ramiawar/dat
 To connect to the frontend, you can then visit:
 [http://localhost:7377](http://localhost:7377)
 
-#### Running manually
+## Upgrading
+
+#### Upgrade Windows
+Same as installation, just replace old exe with new exe! Your data will still be there across versions.
+
+#### Upgrade Mac
+
+Homebrew (retains your data, don't worry about that!)
+
+```bash
+brew update && brew upgrade dataline
+```
+
+If you don't like Homebrew, a binary can be found in the latest release! Data will still be retained there as well.
+
+#### Upgrade Linux
+
+If using Homebrew, same as above. Otherwise simply replace the old binary with the new one!
+
+#### Upgrade Docker 
+
+For updating to a new version, just remove the container and rerun the command. This way the volume is persisted across updates.
+
+```bash
+docker rm dataline
+docker run -p 7377:7377 -v dataline:/home/.dataline --name dataline ramiawar/dataline:latest
+```
+
+## Running manually
+
+Feeling spicy are we? 🌶️
+There are a few things you should know. DataLine is split into two parts: the backend and the frontend.
+
+The backend is a Python FastAPI server, and the frontend is a React app.
+The frontend also includes our landing page, so you need to set up an env var first!
 
 Check the [backend](./backend/README.md) and [frontend](./frontend/README.md) readmes.
 
@@ -181,10 +226,10 @@ To do this, add the environment variable `ALLOWED_ORIGINS` (comma separated list
 By default, it is set to `http://localhost:7377,http://0.0.0.0:7377` to make it work with local Docker and local binaries.
 
 For example, running the docker image on a remote server with IP `123.123.12.34`:
+
 ```bash
 docker run -p 7377:7377 -v dataline:/home/.dataline --name dataline -e ALLOWED_ORIGINS="http://123.123.12.34:7377,https://123.123.12.34:7377" ramiawar/dataline:latest
 ```
-
 
 ### Excel Support
 
@@ -195,3 +240,30 @@ Right now, we will try to automatically detect the 'header row' and the first co
 To ensure the best quality, make sure your first row is the column names, and remove any padding rows/columns from all the sheets. If any sheet fails, the import will fail.
 
 Future improvements to this include optionally allowing LLMs to figure out what the header row is to reduce user effort.
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://ramiawar.github.io/"><img src="https://avatars.githubusercontent.com/u/8523191?v=4?s=100" width="100px;" alt="Rami Awar"/><br /><sub><b>Rami Awar</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=RamiAwar" title="Code">💻</a> <a href="#design-RamiAwar" title="Design">🎨</a> <a href="https://github.com/RamiAwar/dataline/commits?author=RamiAwar" title="Documentation">📖</a> <a href="#infra-RamiAwar" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-RamiAwar" title="Packaging/porting to new platform">📦</a> <a href="#blog-RamiAwar" title="Blogposts">📝</a> <a href="https://github.com/RamiAwar/dataline/issues?q=author%3ARamiAwar" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://anthonymalkoun.com"><img src="https://avatars.githubusercontent.com/u/26882839?v=4?s=100" width="100px;" alt="anthony2261"/><br /><sub><b>anthony2261</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=anthony2261" title="Code">💻</a> <a href="#ideas-anthony2261" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-anthony2261" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#platform-anthony2261" title="Packaging/porting to new platform">📦</a> <a href="#mentoring-anthony2261" title="Mentoring">🧑‍🏫</a> <a href="#maintenance-anthony2261" title="Maintenance">🚧</a> <a href="https://github.com/RamiAwar/dataline/issues?q=author%3Aanthony2261" title="Bug reports">🐛</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wmahad"><img src="https://avatars.githubusercontent.com/u/11237598?v=4?s=100" width="100px;" alt="Walusimbi Mahad"/><br /><sub><b>Walusimbi Mahad</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=wmahad" title="Code">💻</a> <a href="#ideas-wmahad" title="Ideas, Planning, & Feedback">🤔</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="http://peter.gy"><img src="https://avatars.githubusercontent.com/u/40776291?v=4?s=100" width="100px;" alt="Péter Gyarmati"/><br /><sub><b>Péter Gyarmati</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=peter-gy" title="Code">💻</a> <a href="https://github.com/RamiAwar/dataline/commits?author=peter-gy" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/joehaddad2000"><img src="https://avatars.githubusercontent.com/u/71342036?v=4?s=100" width="100px;" alt="Joe Haddad"/><br /><sub><b>Joe Haddad</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=joehaddad2000" title="Code">💻</a> <a href="https://github.com/RamiAwar/dataline/commits?author=joehaddad2000" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/maryamalki"><img src="https://avatars.githubusercontent.com/u/27642194?v=4?s=100" width="100px;" alt="maryamalki"/><br /><sub><b>maryamalki</b></sub></a><br /><a href="https://github.com/RamiAwar/dataline/commits?author=maryamalki" title="Code">💻</a> <a href="https://github.com/RamiAwar/dataline/commits?author=maryamalki" title="Documentation">📖</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!

@@ -1,11 +1,12 @@
 import base64
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, BackgroundTasks
 
 from dataline.models.user.schema import AvatarOut, UserOut, UserUpdateIn
 from dataline.old_models import SuccessResponse
 from dataline.repositories.base import AsyncSession, get_session
 from dataline.services.settings import SettingsService
+from dataline.utils.posthog import posthog_capture
 
 router = APIRouter(prefix="/settings", tags=["settings"])
 
@@ -13,9 +14,12 @@ router = APIRouter(prefix="/settings", tags=["settings"])
 @router.post("/avatar")
 async def upload_avatar(
     file: UploadFile,
+    background_tasks: BackgroundTasks,
     settings_service: SettingsService = Depends(SettingsService),
     session: AsyncSession = Depends(get_session),
 ) -> SuccessResponse[AvatarOut]:
+    background_tasks.add_task(posthog_capture, "avatar_uploaded")
+
     media = await settings_service.upload_avatar(session, file)
     blob_base64 = base64.b64encode(media.blob).decode("utf-8")
     return SuccessResponse(data=AvatarOut(blob=blob_base64))

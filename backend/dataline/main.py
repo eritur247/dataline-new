@@ -18,6 +18,7 @@ from dataline.app import App
 from dataline.config import IS_BUNDLED, config
 from dataline.old_models import SuccessResponse
 from dataline.sentry import maybe_init_sentry
+from dataline.utils.posthog import posthog_capture
 
 logging.basicConfig(level=logging.INFO)
 
@@ -55,11 +56,13 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         webbrowser.open("http://localhost:7377", new=2)
 
     await maybe_init_sentry()
+
+    await posthog_capture("dataline_started")
+
     yield
-    # On shutdown
 
 
-app = App(lifespan=lifespan)
+app = App(lifespan=lifespan)  # type: ignore
 
 
 @app.get("/healthcheck", response_model_exclude_none=True)
@@ -84,8 +87,6 @@ if IS_BUNDLED or config.spa_mode:
             context["VITE_MANIFEST_JS"] = vite_config["index.html"]["file"]
             context["VITE_MANIFEST_CSS"] = vite_config["index.html"]["css"][0]
 
-        if config.base_api_url:
-            context["BASE_API_URL"] = config.base_api_url
         return templates.TemplateResponse("index.html.jinja2", context=context)
 
     def is_port_in_use(port: int) -> bool:
